@@ -1,0 +1,10 @@
+# Security
+.env
+
+# Go build files
+main
+main.exe
+*.exe
+
+# OS specific files
+.DS_Store

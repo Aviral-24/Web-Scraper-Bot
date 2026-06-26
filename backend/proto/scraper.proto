@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package scraper;
+
+// Go compiler ko batana ki generated code kahan save karna hai
+option go_package = "./pb";
+
+// Microservice Setup
+service ScraperService {
+    rpc RunScrape (ScrapeRequest) returns (ScrapeResponse);
+}
+
+// Request Data (Frontend -> Gin -> gRPC)
+message ScrapeRequest {
+    string targetUrl = 1;
+    string containerSelector = 2;
+    string titleSelector = 3;
+    string priceSelector = 4;
+    string export = 5; // CSV format ke liye
+}
+
+// Single Product Data
+message Product {
+    string title = 1;
+    string price = 2;
+}
+
+// Response Data (gRPC -> Gin -> Frontend)
+message ScrapeResponse {
+    string status = 1;
+    int32 total = 2;
+    repeated Product data = 3;
+}
