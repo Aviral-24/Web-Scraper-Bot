@@ -90,7 +90,7 @@ func main() {
 	// 0. Initialize Database securely
 	database.ConnectDB()
 
-	//  2. Router banne ke theek baad ye CORS ka code paste kar dein
+
 	router.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
 		AllowMethods:    []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
