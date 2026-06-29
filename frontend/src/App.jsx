@@ -42,24 +42,41 @@ const response = await fetch('https://web-scraper-bot-eehn.onrender.com/api/scra
     }
   };
 
-  const handleDownloadCSV = async () => {
+  // ✅ UPDATED CSV FUNCTION: Backend jane ki jagah seedha React se CSV banayega
+  const handleDownloadCSV = () => {
     try {
-    const response = await fetch('https://web-scraper-bot-5qer.onrender.com/api/scrape', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, export: 'csv' }),
+      if (!data || !data.data || data.data.length === 0) {
+        alert("No data available to export!");
+        return;
+      }
+
+      const headers = ["Title", "Extracted Data"];
+      const csvRows = [];
+      
+      // Headers add karna
+      csvRows.push(headers.join(","));
+
+      // Data loop karke CSV rows banana
+      data.data.forEach((item) => {
+        // Agar title ya price me comma (,) hoga toh CSV khrab na ho uske liye quotes "" lagaye hain
+        const title = `"${(item.title || "").replace(/"/g, '""')}"`;
+        const price = `"${(item.price || "").replace(/"/g, '""')}"`;
+        csvRows.push([title, price].join(","));
       });
 
-      if (!response.ok) throw new Error('CSV Export failed');
-
-      const blob = await response.blob();
+      // String bankar download karwana
+      const csvString = csvRows.join("\n");
+      const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
       const url = window.URL.createObjectURL(blob);
+      
       const a = document.createElement('a');
-      a.href = url;
-      a.download = 'scraped_data.csv';
+      a.setAttribute("hidden", "");
+      a.setAttribute("href", url);
+      a.setAttribute("download", "scraped_data.csv");
       document.body.appendChild(a);
       a.click();
-      a.remove();
+      document.body.removeChild(a);
+      
     } catch (err) {
       alert("Error downloading CSV: " + err.message);
     }
