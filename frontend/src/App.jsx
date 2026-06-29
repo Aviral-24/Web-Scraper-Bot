@@ -24,7 +24,7 @@ function App() {
 
     try {
       //Live deploy karte waqt localhost:8080 ko Render URL se replace karein
-const response = await fetch("https://web-scraper-bot-5qer.onrender.com/api/scrape", {
+const response = await fetch('https://web-scraper-bot-eehn.onrender.com/api/scrape', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
