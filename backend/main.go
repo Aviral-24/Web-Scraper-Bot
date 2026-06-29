@@ -128,7 +128,7 @@ func main() {
 			return
 		}
 
-		if database.DB != nil && response.Total > 0 { 
+		if database.DB != nil && response.Total > 0 {
 			for _, item := range response.Data {
 				_, err := database.DB.Exec("INSERT INTO products (target_url, title, price) VALUES (?, ?, ?)", target, item.Title, item.Price)
 				if err != nil {
@@ -168,6 +168,10 @@ func main() {
 			return
 		}
 		c.Next()
+	})
+
+	router.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{"message": "🚀 Web Scraper API is Running Successfully!"})
 	})
 
 	router.POST("/api/scrape", func(c *gin.Context) {

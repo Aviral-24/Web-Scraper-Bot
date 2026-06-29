@@ -44,7 +44,7 @@ function App() {
 
   const handleDownloadCSV = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/scrape', {
+    const response = await fetch('https://web-scraper-bot-5qer.onrender.com/api/scrape', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formData, export: 'csv' }),

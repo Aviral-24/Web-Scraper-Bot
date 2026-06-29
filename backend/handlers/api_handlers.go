@@ -72,9 +72,9 @@ func HandleScrape(c *gin.Context) {
 		return
 	}
 
-	// -----------------------------------------
+	
 	// NEW FEATURE: CSV DOWNLOAD LOGIC
-	// -----------------------------------------
+	
 	if req.Export == "csv" {
 		// Browser/Postman ko batana ki ye ek downloadable file hai
 		c.Writer.Header().Set("Content-Type", "text/csv")
@@ -95,9 +95,9 @@ func HandleScrape(c *gin.Context) {
 		return
 	}
 
-	// -----------------------------------------
+
 	// DEFAULT LOGIC (Normal JSON Response)
-	// -----------------------------------------
+
 	c.JSON(http.StatusOK, gin.H{
 		"status": "success",
 		"total":  len(results),
