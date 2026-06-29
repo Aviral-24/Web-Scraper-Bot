@@ -15,6 +15,7 @@ import (
 	"fiverr-go-scraper/database"
 	pb "fiverr-go-scraper/pb"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gocolly/colly/v2"
 	"github.com/robfig/cron/v3"
@@ -90,6 +91,7 @@ func main() {
 	// 0. Initialize Database securely
 	database.ConnectDB()
 
+	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
@@ -164,8 +166,6 @@ func main() {
 	})
 	scheduler.Start()
 
-	// 4. GIN API GATEWAY
-	router := gin.Default()
 	router.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
