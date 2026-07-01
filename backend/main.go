@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -28,6 +29,35 @@ type scraperServer struct {
 	pb.UnimplementedScraperServiceServer
 }
 
+// 🚨 NEW FUNCTION: To identify exact block reason
+func checkBlockReason(err error, statusCode int, body []byte) string {
+	bodyStr := strings.ToLower(string(body))
+	
+	// Layer 2: TLS Fingerprint Check (Network level blocks)
+	if err != nil {
+		errStr := strings.ToLower(err.Error())
+		if strings.Contains(errStr, "tls") || strings.Contains(errStr, "handshake") || strings.Contains(errStr, "certificate") || strings.Contains(errStr, "connection reset") {
+			return "Blocked at Layer 2: TLS/JA3 Fingerprint mismatch (Works in dev, dies at 10x)"
+		}
+	}
+	
+	// Layer 3: Captcha / Interstitial Check (Hidden blocks with status 200)
+	if strings.Contains(bodyStr, "captcha") || strings.Contains(bodyStr, "cf-browser-verification") || strings.Contains(bodyStr, "robot check") || strings.Contains(bodyStr, "datadome") || strings.Contains(bodyStr, "px-captcha") {
+		return "Blocked at Layer 3: Captcha or Interstitial Challenge Triggered"
+	}
+	
+	// Layer 1: Header / WAF Check
+	if statusCode == 401 || statusCode == 403 || statusCode == 429 || statusCode == 503 {
+		return fmt.Sprintf("Blocked at Layer 1: Header/User-Agent Ban or IP Rate Limit (Status Code: %d)", statusCode)
+	}
+	
+	if err != nil {
+		return fmt.Sprintf("Network Error: %v", err)
+	}
+	
+	return "Success"
+}
+
 func (s *scraperServer) RunScrape(ctx context.Context, req *pb.ScrapeRequest) (*pb.ScrapeResponse, error) {
 	c := colly.NewCollector(colly.Async(true))
 
@@ -41,8 +71,18 @@ func (s *scraperServer) RunScrape(ctx context.Context, req *pb.ScrapeRequest) (*
 		r.Headers.Set("User-Agent", userAgents[rand.Intn(len(userAgents))])
 	})
 
+	// 🚨 UPDATED INSTRUMENTATION: Error handler for TLS and Network blocks
 	c.OnError(func(r *colly.Response, err error) {
-		log.Printf("⚠️ [Scraper Error] Blocked or Failed on %s: %v\n", r.Request.URL, err)
+		reason := checkBlockReason(err, r.StatusCode, r.Body)
+		log.Printf("⚠️ [Scraper Blocked] URL: %s | Error Reason: %s\n", r.Request.URL, reason)
+	})
+
+	// 🚨 NEW INSTRUMENTATION: Response handler for hidden Captchas (Status might be 200 but page is blocked)
+	c.OnResponse(func(r *colly.Response) {
+		reason := checkBlockReason(nil, r.StatusCode, r.Body)
+		if reason != "Success" {
+			log.Printf("⚠️ [Hidden Block Detected] URL: %s | Block Reason: %s\n", r.Request.URL, reason)
+		}
 	})
 
 	c.Limit(&colly.LimitRule{
