@@ -23,7 +23,6 @@ function App() {
     setData(null);
 
     try {
-      //Live deploy karte waqt localhost:8080 ko Render URL se replace karein
 const response = await fetch('https://web-scraper-bot-eehn.onrender.com/api/scrape', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -42,7 +41,6 @@ const response = await fetch('https://web-scraper-bot-eehn.onrender.com/api/scra
     }
   };
 
-  // ✅ UPDATED CSV FUNCTION: Backend jane ki jagah seedha React se CSV banayega
   const handleDownloadCSV = () => {
     try {
       if (!data || !data.data || data.data.length === 0) {
@@ -58,7 +56,7 @@ const response = await fetch('https://web-scraper-bot-eehn.onrender.com/api/scra
 
       // Data loop karke CSV rows banana
       data.data.forEach((item) => {
-        // Agar title ya price me comma (,) hoga toh CSV khrab na ho uske liye quotes "" lagaye hain
+        
         const title = `"${(item.title || "").replace(/"/g, '""')}"`;
         const price = `"${(item.price || "").replace(/"/g, '""')}"`;
         csvRows.push([title, price].join(","));
