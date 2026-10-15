@@ -23,7 +23,7 @@ function App() {
     setData(null);
 
     try {
-const response = await fetch('https://web-scraper-bot-eehn.onrender.com/api/scrape', {
+const response = await fetch('/api/scrape', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

@@ -40,5 +40,17 @@ func ConnectDB() {
 		log.Println("⚠️ MySQL not connected! Is your database running?")
 	} else {
 		log.Println("🛢️ [Database] MySQL Connected Successfully!")
+		_, err = DB.Exec(`
+			CREATE TABLE IF NOT EXISTS products (
+				id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+				target_url TEXT NOT NULL,
+				title TEXT NOT NULL,
+				price TEXT NOT NULL,
+				created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+			)
+		`)
+		if err != nil {
+			log.Fatalf("❌ Failed to initialize products table: %v", err)
+		}
 	}
 }

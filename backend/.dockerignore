@@ -1,0 +1,5 @@
+.env
+.git
+vendor
+*.exe
+scraper-bot
